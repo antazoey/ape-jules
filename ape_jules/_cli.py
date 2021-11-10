@@ -2,10 +2,9 @@ import json
 
 import click
 
-from ape.cli import ape_group, network_option
 from ape import networks
+from ape.cli import network_option, NetworkBoundCommand
 from eth_typing import ChecksumAddress, HexAddress, HexStr
-import pandas as pd
 
 
 def _abi_callback(arg):
@@ -30,39 +29,16 @@ abi_option = click.option(
     type=click.File(),
     callback=lambda ctx, param, arg: _abi_callback(arg),
     help="The contract ABI",
-    required=True
+    required=True,
 )
 
 
-@ape_group()
+@click.group()
 def cli():
-    """My custom Ethereum tools"""
+    """Jules's custom Ethereum tools"""
 
 
-@cli.command_using_network_option()
-@address_option
-@abi_option
-@click.option("--event-type", multiple=True, help="Limit logs by event type")
-@network_option
-def logs(address, abi, event_type, network):
-    """Get contract logs"""
-    provider = networks.active_provider
-    events = [dict(e) for e in provider.get_events()]
-    for event in events:
-        event["topics"] = [provider._web3.toHex(t) for t in event["topics"]]
-    columns = "data", "logIndex", "topics"
-    df = pd.DataFrame.from_records(
-        events, columns=columns, index="logIndex"
-    )
-    if df.empty:
-        click.echo("No logs found.")
-        return
-
-    # defaults = {
-    #     "orient": "records",
-    #     "lines": True,
-    #     "index": True,
-    #     "default_handler": str,
-    # }
-    # output = df.to_json(**defaults)
-    click.echo_via_pager(df.to_csv())
+@cli.command(cls=NetworkBoundCommand)
+@network_option()
+def test_network(network):
+    click.echo(f"Currently connected to {networks.active_provider.name}")

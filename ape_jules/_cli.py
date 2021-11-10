@@ -1,5 +1,3 @@
-import json
-
 import click
 
 from ape import networks
@@ -13,5 +11,6 @@ def cli():
 
 @cli.command(cls=NetworkBoundCommand)
 @network_option()
-def test_network(network):
+def ping(network):
+    """Test the connection the network"""
     click.echo(f"Currently connected to {networks.active_provider.name}")

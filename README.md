@@ -4,12 +4,12 @@ Jules' custom ape plugin
 
 ## Commands
 
-### test-networks
+### ping
 
 Usage:
 
 ```bash
-ape jules test-network --network <option>
+ape jules ping --network <option>
 ```
 
 Description:

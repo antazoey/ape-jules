@@ -15,3 +15,13 @@ ape jules ping --network <option>
 Description:
 
 Test the current network by connecting to it and printing its name.
+
+## Plugin
+
+### Config
+
+Jules Config variables:
+
+| name     | default       | description                      |
+|:--------:|:-------------:|:--------------------------------:|
+| message  | "Jules hacks" | Used as the CLI group short help |

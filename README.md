@@ -1,6 +1,15 @@
 # ape-jules
 
-Jules' custom ape plugin
+This project is a place to put my custom `ape` commands.
+
+The nature of my own commands:
+
+* Automating / aiding development
+* Manual testing
+* 3rd party demo plugin
+* Experimenting
+
+Everything in this repo is subject to change at any time and will not be versioned!
 
 ## Commands
 

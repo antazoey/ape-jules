@@ -1,12 +1,12 @@
 import click
 
-from ape import networks
+from ape import config, networks
 from ape.cli import network_option, NetworkBoundCommand
 
 
-@click.group()
+@click.group(short_help=config.get_config("jules")["message"])
 def cli():
-    """Jules's custom Ethereum tools"""
+    pass
 
 
 @cli.command(cls=NetworkBoundCommand)

@@ -19,7 +19,7 @@ def ping(network):
     Test the connection the network
     """
     _ = network
-    click.echo(f"Currently connected to {networks.active_provider.name}")
+    click.echo(f"Currently using a(n) {networks.active_provider.name} network.")
 
 
 @cli.command(cls=NetworkBoundCommand)

@@ -67,8 +67,19 @@ def list_ext(contract):
 @network_option()
 def block(network, block_id):
     """
-    Print the block for the given ID.
+    Get a block.
     """
     num = networks.active_provider.get_block(block_id).number
     styled_num = click.style(str(num), bold=True)
     click.echo(f"The block number is {styled_num}.")
+
+
+@cli.command(cls=NetworkBoundCommand)
+@account_option_that_prompts_when_not_given()
+@network_option()
+def nonce(account, network):
+    """
+    Get an account nonce.
+    """
+    _nonce = networks.active_provider.get_nonce(account.address)
+    click.echo(_nonce)

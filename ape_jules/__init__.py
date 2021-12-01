@@ -1,5 +1,4 @@
 from ape import plugins
-from ape.api.config import ConfigItem
 
 from .config import JulesConfig
 

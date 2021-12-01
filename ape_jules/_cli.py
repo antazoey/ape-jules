@@ -71,4 +71,4 @@ def block(network, block_id):
     """
     num = networks.active_provider.get_block(block_id).number
     styled_num = click.style(str(num), bold=True)
-    click.echo(f"The current block number is {styled_num}.")
+    click.echo(f"The block number is {styled_num}.")

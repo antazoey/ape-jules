@@ -89,6 +89,9 @@ def nonce(account, network):
 @cli.command()
 @click.option("--limit", help="Limit the amount of accounts to list.", default=20)
 def test_accounts(limit):
+    """
+    Print all the test accounts
+    """
     def _yield_accounts():
         index = 0
         for acct in accounts.test_accounts:
@@ -103,9 +106,18 @@ def test_accounts(limit):
 
 
 @cli.command()
-def clean():
+def data_path():
     """
-    Delete the .ape data folder.
+    Print the data path
+    """
+    click.echo(config.DATA_FOLDER)
+
+
+@cli.command()
+def refresh():
+    """
+    Delete the .ape data folder
     """
     folder = config.DATA_FOLDER
-    shutil.rmtree(folder)
+    if folder.exists():
+        shutil.rmtree(config.DATA_FOLDER)

@@ -1,7 +1,8 @@
 import json
+import shutil
 
 import click
-from ape import config, networks
+from ape import accounts, config, networks
 from ape.cli import (
     NetworkBoundCommand,
     account_option_that_prompts_when_not_given,
@@ -69,9 +70,9 @@ def block(network, block_id):
     """
     Get a block.
     """
-    num = networks.active_provider.get_block(block_id).number
-    styled_num = click.style(str(num), bold=True)
-    click.echo(f"The block number is {styled_num}.")
+    b = networks.active_provider._web3.eth.get_block(block_id).keys()
+    b = [k for k in b]
+    click.echo(b)
 
 
 @cli.command(cls=NetworkBoundCommand)
@@ -83,3 +84,28 @@ def nonce(account, network):
     """
     _nonce = networks.active_provider.get_nonce(account.address)
     click.echo(_nonce)
+
+
+@cli.command()
+@click.option("--limit", help="Limit the amount of accounts to list.", default=20)
+def test_accounts(limit):
+    def _yield_accounts():
+        index = 0
+        for acct in accounts.test_accounts:
+            if index < limit:
+                bold_addr = click.style(acct.address, bold=True)
+                bold_key = click.style(acct._private_key, bold=True)
+                acct_text = f"{index}:\n\taddress='{bold_addr}'\n\tprivate_key='{bold_key}'\n-------"
+                yield acct_text
+                index += 1
+
+    click.echo_via_pager(_yield_accounts())
+
+
+@cli.command()
+def clean():
+    """
+    Delete the .ape data folder.
+    """
+    folder = config.DATA_FOLDER
+    shutil.rmtree(folder)

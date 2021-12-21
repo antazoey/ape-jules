@@ -13,17 +13,18 @@ Everything in this repo is subject to change at any time and will not be version
 
 ## Commands
 
-### ping
-
-Usage:
-
-```bash
-ape jules ping --network <option>
 ```
-
-Description:
-
-Test the current network by connecting to it and printing its name.
+  abi                Dump the ABI of the given contract.
+  balance            Check the balance of an account
+  block              Get a block.
+  data-path          Print the data path.
+  list-dependencies  List the downloaded dependencies.
+  list-ext           List each extension for each of the given contracts.
+  nonce              Get an account nonce.
+  ping               Test the connection the network.
+  refresh            Delete the .ape data folder.
+  test-accounts      Print all the test accounts.
+```
 
 ## Plugin
 

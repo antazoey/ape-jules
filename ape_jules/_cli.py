@@ -19,7 +19,7 @@ def cli():
 @network_option()
 def ping(network):
     """
-    Test the connection the network
+    Test the connection the network.
     """
     _ = network
     click.echo(f"Currently using a(n) {networks.active_provider.name} network.")
@@ -90,7 +90,7 @@ def nonce(account, network):
 @click.option("--limit", help="Limit the amount of accounts to list.", default=20)
 def test_accounts(limit):
     """
-    Print all the test accounts
+    Print all the test accounts.
     """
     def _yield_accounts():
         index = 0
@@ -108,7 +108,7 @@ def test_accounts(limit):
 @cli.command()
 def data_path():
     """
-    Print the data path
+    Print the data path.
     """
     click.echo(config.DATA_FOLDER)
 
@@ -116,8 +116,23 @@ def data_path():
 @cli.command()
 def refresh():
     """
-    Delete the .ape data folder
+    Delete the .ape data folder.
     """
     folder = config.DATA_FOLDER
     if folder.exists():
         shutil.rmtree(config.DATA_FOLDER)
+
+
+@cli.command()
+def list_dependencies():
+    """
+    List the downloaded dependencies.
+    """
+
+    folder = config.DATA_FOLDER / "packages"
+    if not folder.exists():
+        return
+
+    packages = [p for p in folder.iterdir() if p.is_dir()]
+    for package in packages:
+        click.echo(package.name)

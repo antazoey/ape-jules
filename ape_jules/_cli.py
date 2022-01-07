@@ -2,7 +2,7 @@ import json
 import shutil
 
 import click
-from ape import accounts, config, networks
+from ape import accounts, chain, config, networks
 from ape.cli import (
     NetworkBoundCommand,
     account_option_that_prompts_when_not_given,
@@ -136,3 +136,15 @@ def list_dependencies():
     packages = [p for p in folder.iterdir() if p.is_dir()]
     for package in packages:
         click.echo(package.name)
+
+
+@cli.command(cls=NetworkBoundCommand)
+@network_option()
+def poll_blocks(network):
+    """
+    Launch a deamon process that polls new blocks.
+    """
+    for new_block in chain.blocks.poll_blocks():
+        click.echo(
+            f"New block found: number={new_block.number}, timestamp={new_block.timestamp}, size={new_block.size}"
+        )

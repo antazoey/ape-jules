@@ -21,8 +21,15 @@ def ping(network):
     """
     Test the connection the network.
     """
-    _ = network
-    click.echo(f"Currently using a(n) {networks.active_provider.name} network.")
+    if not network:
+        click.echo("Not connected.")
+        return
+
+    provider = networks.active_provider
+    ecosystem_name = provider.network.ecosystem.name
+    network_name = provider.network.name
+    provider_name = provider.name
+    click.echo(f"Current connected to ;{ecosystem_name}:{network_name}:{provider_name}'.")
 
 
 @cli.command(cls=NetworkBoundCommand)
@@ -66,13 +73,12 @@ def list_ext(contract):
 @cli.command(cls=NetworkBoundCommand)
 @click.argument("block_id", default="latest", required=False)
 @network_option()
-def block(network, block_id):
+def get_block(network, block_id):
     """
     Get a block.
     """
-    b = networks.active_provider._web3.eth.get_block(block_id).keys()
-    b = [k for k in b]
-    click.echo(b)
+    block = networks.active_provider.get_block(block_id)
+    click.echo(block)
 
 
 @cli.command(cls=NetworkBoundCommand)

@@ -29,7 +29,7 @@ def ping(network):
     ecosystem_name = provider.network.ecosystem.name
     network_name = provider.network.name
     provider_name = provider.name
-    click.echo(f"Current connected to ;{ecosystem_name}:{network_name}:{provider_name}'.")
+    click.echo(f"Current connected to :{ecosystem_name}:{network_name}:{provider_name}'.")
 
 
 @cli.command(cls=NetworkBoundCommand)

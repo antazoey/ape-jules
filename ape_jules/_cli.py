@@ -7,6 +7,7 @@ import time
 import click
 from ape import accounts, chain, config, networks
 from ape.cli import (
+    Abort,
     NetworkBoundCommand,
     account_option,
     contract_option,
@@ -26,8 +27,7 @@ def ping(network):
     Test the connection the network.
     """
     if not network:
-        click.echo("Not connected.")
-        return
+        raise Abort("Not connected.")
 
     provider = networks.active_provider
     ecosystem_name = provider.network.ecosystem.name

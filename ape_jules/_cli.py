@@ -1,6 +1,7 @@
 import curses
 import json
 import random
+from pathlib import Path
 import shutil
 import time
 
@@ -10,6 +11,7 @@ from ape.cli import (
     Abort,
     NetworkBoundCommand,
     account_option,
+    ape_cli_context,
     contract_option,
     network_option,
 )
@@ -33,9 +35,7 @@ def ping(network):
     ecosystem_name = provider.network.ecosystem.name
     network_name = provider.network.name
     provider_name = provider.name
-    click.echo(
-        f"Current connected to :{ecosystem_name}:{network_name}:{provider_name}'."
-    )
+    click.echo(f"Current connected to :{ecosystem_name}:{network_name}:{provider_name}'.")
 
 
 @cli.command(cls=NetworkBoundCommand)
@@ -111,7 +111,9 @@ def test_accounts(limit):
             if index < limit:
                 bold_addr = click.style(acct.address, bold=True)
                 bold_key = click.style(acct._private_key, bold=True)
-                acct_text = f"{index}:\n\taddress='{bold_addr}'\n\tprivate_key='{bold_key}'\n-------"
+                acct_text = (
+                    f"{index}:\n\taddress='{bold_addr}'\n\tprivate_key='{bold_key}'\n-------"
+                )
                 yield acct_text
                 index += 1
 
@@ -159,8 +161,25 @@ def poll_blocks(network):
     """
     for new_block in chain.blocks.poll_blocks():
         click.echo(
-            f"New block found: number={new_block.number}, timestamp={new_block.timestamp}, size={new_block.size}"
+            f"New block found: number={new_block.number}, "
+            f"timestamp={new_block.timestamp}, "
+            f"size={new_block.size}"
         )
+
+
+@cli.command()
+@ape_cli_context()
+def clean(cli_ctx):
+    """Delete caches."""
+
+    build_cache = Path.cwd() / ".build"
+    contracts_cache = cli_ctx.project.contracts_folder / ".cache"
+    packages_cache = config.DATA_FOLDER / "packages"
+    caches = [c for c in (build_cache, contracts_cache, packages_cache) if c.exists()]
+
+    for cache in caches:
+        click.echo(f"Deleting {cache}...")
+        shutil.rmtree(str(cache))
 
 
 @cli.command()
@@ -265,10 +284,7 @@ def play_snake():
         win.addch(snake_position[0][0], snake_position[0][1], "#")
 
         # On collision kill the snake
-        if (
-            collision_with_boundaries(snake_head) == 1
-            or collision_with_self(snake_position) == 1
-        ):
+        if collision_with_boundaries(snake_head) == 1 or collision_with_self(snake_position) == 1:
             break
 
     sc.addstr(10, 30, "Your Score is:  " + str(score))

@@ -1,9 +1,10 @@
 import curses
 import json
 import random
-from pathlib import Path
 import shutil
 import time
+from pathlib import Path
+from typing import Optional
 
 import click
 from ape import accounts, chain, config, networks
@@ -15,6 +16,9 @@ from ape.cli import (
     contract_option,
     network_option,
 )
+from ape.managers.config import CONFIG_FILE_NAME
+from rich import print as echo_rich_text
+from rich.tree import Tree
 
 
 @click.group(short_help=config.get_config("jules")["message"])
@@ -180,6 +184,28 @@ def clean(cli_ctx):
     for cache in caches:
         click.echo(f"Deleting {cache}...")
         shutil.rmtree(str(cache))
+
+
+@cli.command()
+@ape_cli_context()
+@click.option("--generic", is_flag=True)
+def project_structure(cli_ctx, generic):
+    """List an example ape project structure"""
+
+    if generic:
+        root_tree = Tree("<project-name>")
+        root_tree.add(Tree("contracts/"))
+        root_tree.add(Tree("tests/"))
+        root_tree.add(Tree("scripts/"))
+        root_tree.add(Tree(CONFIG_FILE_NAME))
+    else:
+        root_tree = Tree(cli_ctx.project.path.name)
+        root_tree.add(Tree(cli_ctx.project._project.contracts_folder.name))
+        root_tree.add(Tree(cli_ctx.project.tests_folder.name))
+        root_tree.add(Tree(cli_ctx.project.scripts_folder.name))
+        root_tree.add(Tree(CONFIG_FILE_NAME))
+
+    echo_rich_text(root_tree)
 
 
 @cli.command()

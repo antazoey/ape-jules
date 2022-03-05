@@ -41,7 +41,7 @@ setup(
     url="https://github.com/unparalleled-js/ape-jules",
     include_package_data=True,
     install_requires=[
-        "eth-ape>=0.1.0b2",
+        "eth-ape>=0.1.0b5",
         "importlib-metadata ; python_version<'3.8'",
     ],  # NOTE: Add 3rd party libraries here
     entry_points={
@@ -49,7 +49,7 @@ setup(
             "ape_jules=ape_jules._cli:cli",
         ],
     },
-    python_requires=">=3.7,<4",
+    python_requires=">=3.7.2,<4",
     extras_require=extras_require,
     py_modules=["ape_jules"],
     license="Apache-2.0",
@@ -68,5 +68,6 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
 )

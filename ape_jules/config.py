@@ -1,5 +1,5 @@
-from ape.api.config import ConfigItem
+from ape.api.config import PluginConfig
 
 
-class JulesConfig(ConfigItem):
+class JulesConfig(PluginConfig):
     message: str = "Jules hacks"

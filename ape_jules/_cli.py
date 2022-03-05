@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 import click
-from ape import accounts, chain, config, networks
+from click import get_current_context
 from ape.cli import (
     Abort,
     AccountAliasPromptChoice,
@@ -17,27 +17,33 @@ from ape.cli import (
     contract_option,
     network_option,
 )
+from ape import config
 from ape.cli.options import _load_contracts
 from ape.managers.config import CONFIG_FILE_NAME
 from rich import print as echo_rich_text
 from rich.tree import Tree
 
 
-@click.group(short_help=config.get_config("jules")["message"])
+def _short_help() -> str:
+    return config.get_config("jules")["message"]
+
+
+@click.group(short_help=_short_help())
 def cli():
     pass
 
 
 @cli.command(cls=NetworkBoundCommand)
+@ape_cli_context()
 @network_option()
-def ping(network):
+def ping(cli_ctx, network):
     """
     Test the connection the network.
     """
     if not network:
         raise Abort("Not connected.")
 
-    provider = networks.active_provider
+    provider = cli_ctx.network_manager.active_provider
     ecosystem_name = provider.network.ecosystem.name
     network_name = provider.network.name
     provider_name = provider.name
@@ -68,12 +74,16 @@ def abi(contract):
 
 
 @cli.command()
+@ape_cli_context()
 @contract_option(help="The name of the contract to get events for.", multiple=True)
-def list_ext(contract):
+def list_ext(cli_ctx, contract):
     """
     List each extension for each of the given contracts.
     """
     extensions = []
+    if not contract:
+        cli_ctx.abort("There are no contract in this project.")
+
     for con in contract:
         ext = str(con.sourceId).split(".")[-1]
         extensions.append(ext)
@@ -105,67 +115,58 @@ def nonce(account, network):
 
 
 @cli.command()
+@ape_cli_context()
 @click.option("--limit", help="Limit the amount of accounts to list.", default=20)
-def test_accounts(limit):
-    """
-    Print all the test accounts.
-    """
+def test_accounts(cli_ctx, limit):
+    """Show all the test account key-pairs."""
 
-    def _yield_accounts():
-        index = 0
-        for acct in accounts.test_accounts:
-            if index < limit:
-                bold_addr = click.style(acct.address, bold=True)
-                bold_key = click.style(acct._private_key, bold=True)
-                acct_text = (
-                    f"{index}:\n\taddress='{bold_addr}'\n\tprivate_key='{bold_key}'\n-------"
-                )
-                yield acct_text
-                index += 1
-
-    click.echo_via_pager(_yield_accounts())
+    index = 0
+    for acct in cli_ctx.account_manager.test_accounts:
+        if index < limit:
+            bold_addr = click.style(acct.address, bold=True)
+            bold_key = click.style(acct.private_key, bold=True)
+            acct_text = (
+                f"{index}.\npublic_key = {bold_addr}'\nprivate_key = {bold_key}\n"
+            )
+            click.echo(acct_text)
+            index += 1
 
 
 @cli.command()
-def data_path():
-    """
-    Print the data path.
-    """
-    click.echo(config.DATA_FOLDER)
+@ape_cli_context()
+def data_path(cli_ctx):
+    """Print the data path."""
+    click.echo(cli_ctx.config_manager.DATA_FOLDER)
 
 
 @cli.command()
-def refresh():
-    """
-    Delete the .ape data folder.
-    """
-    folder = config.DATA_FOLDER
-    if folder.exists():
-        shutil.rmtree(config.DATA_FOLDER)
+@ape_cli_context()
+def list_dependencies(cli_ctx):
+    """List the downloaded dependencies."""
 
-
-@cli.command()
-def list_dependencies():
-    """
-    List the downloaded dependencies.
-    """
-
-    folder = config.DATA_FOLDER / "packages"
+    folder = cli_ctx.config_manager.DATA_FOLDER / "packages"
     if not folder.exists():
         return
 
     packages = [p for p in folder.iterdir() if p.is_dir()]
     for package in packages:
-        click.echo(package.name)
+        package_tree = Tree(package.name)
+        versions = [v for v in package.iterdir() if v.is_dir()]
+        for version in versions:
+            version_tree = Tree(version.name)
+            package_tree.add(version_tree)
+
+        echo_rich_text(package_tree)
 
 
 @cli.command(cls=NetworkBoundCommand)
 @network_option()
-def poll_blocks(network):
+@ape_cli_context()
+def poll_blocks(cli_ctx, network):
     """
     Launch a deamon process that polls new blocks.
     """
-    for new_block in chain.blocks.poll_blocks():
+    for new_block in cli_ctx.chain_manager.blocks.poll_blocks():
         click.echo(
             f"New block found: number={new_block.number}, "
             f"timestamp={new_block.timestamp}, "
@@ -179,8 +180,8 @@ def clean(cli_ctx):
     """Delete caches."""
 
     build_cache = Path.cwd() / ".build"
-    contracts_cache = cli_ctx.project.contracts_folder / ".cache"
-    packages_cache = config.DATA_FOLDER / "packages"
+    contracts_cache = cli_ctx.project_manager.contracts_folder / ".cache"
+    packages_cache = cli_ctx.config_manager.DATA_FOLDER / "packages"
     caches = [c for c in (build_cache, contracts_cache, packages_cache) if c.exists()]
 
     for cache in caches:
@@ -195,17 +196,19 @@ def project_structure(cli_ctx, generic):
     """List an example ape project structure"""
 
     if generic:
-        root_tree = Tree("<project-name>")
-        root_tree.add(Tree("contracts/"))
-        root_tree.add(Tree("tests/"))
-        root_tree.add(Tree("scripts/"))
-        root_tree.add(Tree(CONFIG_FILE_NAME))
+        root_tree = Tree("project-name/")
+        trees = ["contracts/", "tests/", "scripts/", CONFIG_FILE_NAME]
     else:
-        root_tree = Tree(cli_ctx.project.path.name)
-        root_tree.add(Tree(cli_ctx.project._project.contracts_folder.name))
-        root_tree.add(Tree(cli_ctx.project.tests_folder.name))
-        root_tree.add(Tree(cli_ctx.project.scripts_folder.name))
-        root_tree.add(Tree(CONFIG_FILE_NAME))
+        root_tree = Tree(f"{cli_ctx.project_manager.path.name}/")
+        trees = [
+            f"{cli_ctx.project_manager._project.contracts_folder.name}/",
+            f"{cli_ctx.project_manager.tests_folder.name}/",
+            f"{cli_ctx.project_manager.scripts_folder.name}/",
+            CONFIG_FILE_NAME
+        ]
+
+    for tree in trees:
+        root_tree.add(Tree(tree))
 
     echo_rich_text(root_tree)
 

@@ -10,12 +10,14 @@ import click
 from ape import accounts, chain, config, networks
 from ape.cli import (
     Abort,
+    AccountAliasPromptChoice,
     NetworkBoundCommand,
     account_option,
     ape_cli_context,
     contract_option,
     network_option,
 )
+from ape.cli.options import _load_contracts
 from ape.managers.config import CONFIG_FILE_NAME
 from rich import print as echo_rich_text
 from rich.tree import Tree
@@ -55,12 +57,12 @@ def balance(network, account):
 
 
 @cli.command()
-@contract_option(help="The name of the contract to get events for.")
+@click.argument("contract", callback=_load_contracts)
 def abi(contract):
     """
     Dump the ABI of the given contract.
     """
-    abi_dict = {"abi": [abi.to_dict() for abi in contract.abi]}
+    abi_dict = {"abi": [abi.dict() for abi in contract.abi]}
     output = json.dumps(abi_dict, indent=4)
     click.echo(output)
 

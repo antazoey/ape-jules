@@ -75,7 +75,7 @@ def abi(contract):
 
 @cli.command()
 @ape_cli_context()
-@contract_option(help="The name of the contract to get events for.", multiple=True)
+@contract_option(help="The name of the contract to check.", multiple=True)
 def list_ext(cli_ctx, contract):
     """
     List each extension for each of the given contracts.
@@ -172,6 +172,24 @@ def poll_blocks(cli_ctx, network):
             f"timestamp={new_block.timestamp}, "
             f"size={new_block.size}"
         )
+
+
+@cli.command(cls=NetworkBoundCommand)
+@network_option()
+@ape_cli_context()
+@click.option("--contract-type", help="The contract type containing the event type.", required=True)
+@click.option("--contract-address", help="The address of the deployed contract.", required=True)
+@click.option("--event-type", help="The type of event to get logs for.", required=True)
+def poll_logs(cli_ctx, network, contract_type, contract_address, event_type, required=True):
+    """
+    Poll new logs from a contract event.
+    """
+    contract_type = cli_ctx.project_manager.get_contract(contract_type)
+    contract_instance = contract_type.at(contract_address)
+    event_type = getattr(contract_instance, event_type)
+
+    for new_log in event_type.poll_logs():
+        click.echo(new_log)
 
 
 @cli.command()

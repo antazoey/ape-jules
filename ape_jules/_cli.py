@@ -4,20 +4,17 @@ import random
 import shutil
 import time
 from pathlib import Path
-from typing import Optional
 
 import click
-from click import get_current_context
+from ape import config
 from ape.cli import (
     Abort,
-    AccountAliasPromptChoice,
     NetworkBoundCommand,
     account_option,
     ape_cli_context,
     contract_option,
     network_option,
 )
-from ape import config
 from ape.cli.options import _load_contracts
 from ape.managers.config import CONFIG_FILE_NAME
 from rich import print as echo_rich_text
@@ -43,23 +40,24 @@ def ping(cli_ctx, network):
     if not network:
         raise Abort("Not connected.")
 
-    provider = cli_ctx.network_manager.active_provider
-    ecosystem_name = provider.network.ecosystem.name
-    network_name = provider.network.name
-    provider_name = provider.name
+    ecosystem_name = cli_ctx.provider.network.ecosystem.name
+    network_name = cli_ctx.provider.network.name
+    provider_name = cli_ctx.provider.name
     click.echo(f"Current connected to :{ecosystem_name}:{network_name}:{provider_name}'.")
 
 
 @cli.command(cls=NetworkBoundCommand)
+@ape_cli_context()
 @network_option()
 @account_option()
-def balance(network, account):
+def balance(cli_ctx, network, account):
     """
     Check the balance of an account
     """
     _ = network
-    amount = networks.active_provider.get_balance(account.address)
-    click.echo(amount)
+    amount = cli_ctx.provider.get_balance(account.address)
+    output = f"{amount / 10 ** 16} ETH"
+    click.echo(output)
 
 
 @cli.command()
@@ -125,9 +123,7 @@ def test_accounts(cli_ctx, limit):
         if index < limit:
             bold_addr = click.style(acct.address, bold=True)
             bold_key = click.style(acct.private_key, bold=True)
-            acct_text = (
-                f"{index}.\npublic_key = {bold_addr}'\nprivate_key = {bold_key}\n"
-            )
+            acct_text = f"{index}.\npublic_key = {bold_addr}'\nprivate_key = {bold_key}\n"
             click.echo(acct_text)
             index += 1
 
@@ -189,7 +185,7 @@ def poll_logs(cli_ctx, network, contract_type, contract_address, event_type, req
     event_type = getattr(contract_instance, event_type)
 
     for new_log in event_type.poll_logs():
-        click.echo(new_log)
+        click.echo(new_log.data)
 
 
 @cli.command()
@@ -222,7 +218,7 @@ def project_structure(cli_ctx, generic):
             f"{cli_ctx.project_manager._project.contracts_folder.name}/",
             f"{cli_ctx.project_manager.tests_folder.name}/",
             f"{cli_ctx.project_manager.scripts_folder.name}/",
-            CONFIG_FILE_NAME
+            CONFIG_FILE_NAME,
         ]
 
     for tree in trees:

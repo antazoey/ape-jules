@@ -43,7 +43,7 @@ setup(
     install_requires=[
         "eth-ape>=0.1.0b5",
         "click>=8.1.3,<9",
-        "rich>=10.16.2,<11"
+        "rich>=10.16.2,<11",
         "importlib-metadata ; python_version<'3.8'",
     ],  # NOTE: Add 3rd party libraries here
     entry_points={

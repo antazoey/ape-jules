@@ -5,6 +5,7 @@ import click
 from ape.cli import ape_cli_context
 from ape.logging import LogLevel
 from rich.console import Console
+import subprocess
 
 
 @click.group(short_help="Manage smart-contract projects.")
@@ -71,3 +72,24 @@ def delete(cli_ctx, project_names):
 
         shutil.rmtree(project_path)
         cli_ctx.logger.success(f"Project '{project_name}' has been deleted.")
+
+
+@projects.command("open")
+@ape_cli_context()
+@click.argument("project_name")
+def _open(cli_ctx, project_name):
+    """Open a project using your editor."""
+
+    config = cli_ctx.config_manager.get_config("jules")
+    path = Path(config.projects_directory)
+    project_path = path / project_name
+    if not project_path.is_dir():
+        cli_ctx.abort(f"'{project_name}' is not a project.")
+
+    editor = config.editor
+    editor_parts = editor.split(" ")
+    editor_main = shutil.which(editor_parts[0])
+    if not editor_main:
+        cli_ctx.abort(f"'{editor_main}' not found in PATH.")
+
+    subprocess.run([*editor_parts, str(project_path)])

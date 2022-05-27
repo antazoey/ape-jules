@@ -24,6 +24,7 @@ Everything in this repo is subject to change at any time and will not be version
   ping               Test the connection the network.
   refresh            Delete the .ape data folder.
   test-accounts      Print all the test accounts.
+  projects           Manage smart-contract projects.
 ```
 
 ## Plugin

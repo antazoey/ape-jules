@@ -19,6 +19,7 @@ from ape.cli.options import _load_contracts
 from ape.managers.config import CONFIG_FILE_NAME
 from rich import print as echo_rich_text
 from rich.tree import Tree
+from ape_jules.subcommands.projects import projects as project_cli
 
 
 def _short_help() -> str:
@@ -91,24 +92,26 @@ def list_ext(cli_ctx, contract):
 
 
 @cli.command(cls=NetworkBoundCommand)
+@ape_cli_context()
 @click.argument("block_id", default="latest", required=False)
 @network_option()
-def get_block(network, block_id):
+def get_block(cli_ctx, network, block_id):
     """
     Get a block.
     """
-    block = networks.active_provider.get_block(block_id)
+    block = cli_ctx.networks.provider.get_block(block_id)
     click.echo(block)
 
 
 @cli.command(cls=NetworkBoundCommand)
+@ape_cli_context()
 @account_option()
 @network_option()
-def nonce(account, network):
+def nonce(cli_ctx, account, network):
     """
     Get an account nonce.
     """
-    _nonce = networks.active_provider.get_nonce(account.address)
+    _nonce = cli_ctx.networks.provider.get_nonce(account.address)
     click.echo(_nonce)
 
 
@@ -338,3 +341,6 @@ def play_snake():
     curses.endwin()
     click.echo(a)
     click.echo(w, h)
+
+
+cli.add_command(project_cli)  # type: ignore

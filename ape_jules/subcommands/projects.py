@@ -92,4 +92,4 @@ def _open(cli_ctx, project_name):
     if not editor_main:
         cli_ctx.abort(f"'{editor_main}' not found in PATH.")
 
-    subprocess.run([*editor_parts, str(project_path)])
+    subprocess.Popen([*editor_parts, str(project_path)])

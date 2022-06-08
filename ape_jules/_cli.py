@@ -122,13 +122,13 @@ def test_accounts(cli_ctx, limit):
     """Show all the test account key-pairs."""
 
     index = 0
-    for acct in cli_ctx.account_manager.test_accounts:
-        if index < limit:
-            bold_addr = click.style(acct.address, bold=True)
-            bold_key = click.style(acct.private_key, bold=True)
-            acct_text = f"{index}.\npublic_key = {bold_addr}'\nprivate_key = {bold_key}\n"
-            click.echo(acct_text)
-            index += 1
+    accounts = cli_ctx.account_manager.test_accounts[:limit]
+    for acct in accounts:
+        bold_addr = click.style(acct.address, bold=True)
+        bold_key = click.style(acct.private_key, bold=True)
+        acct_text = f"{index}.\npublic_key = {bold_addr}'\nprivate_key = {bold_key}\n"
+        click.echo(acct_text)
+        index += 1
 
 
 @cli.command()

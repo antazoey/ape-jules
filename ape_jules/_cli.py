@@ -17,14 +17,17 @@ from ape.cli import (
 )
 from ape.cli.options import _load_contracts
 from ape.managers.config import CONFIG_FILE_NAME
+from ape.utils import DEFAULT_NUMBER_OF_TEST_ACCOUNTS
 from rich import print as echo_rich_text
 from rich.tree import Tree
 
+from ape_jules.config import DEFAULT_MESSAGE
 from ape_jules.subcommands.projects import projects as project_cli
 
 
 def _short_help() -> str:
-    return config.get_config("jules")["message"]
+    jules_config = config.get_config("jules")
+    return getattr(jules_config, "message", DEFAULT_MESSAGE)
 
 
 @click.group(short_help=_short_help())
@@ -118,7 +121,9 @@ def nonce(cli_ctx, account, network):
 
 @cli.command()
 @ape_cli_context()
-@click.option("--limit", help="Limit the amount of accounts to list.", default=20)
+@click.option(
+    "--limit", help="Limit the amount of accounts to list.", default=DEFAULT_NUMBER_OF_TEST_ACCOUNTS
+)
 def test_accounts(cli_ctx, limit):
     """Show all the test account key-pairs."""
 
@@ -127,7 +132,7 @@ def test_accounts(cli_ctx, limit):
     for acct in accounts:
         bold_addr = click.style(acct.address, bold=True)
         bold_key = click.style(acct.private_key, bold=True)
-        acct_text = f"{index}.\npublic_key = {bold_addr}'\nprivate_key = {bold_key}\n"
+        acct_text = f"{index}.\npublic_key = {bold_addr}\nprivate_key = {bold_key}\n"
         click.echo(acct_text)
         index += 1
 

@@ -19,6 +19,7 @@ from ape.cli.options import _load_contracts
 from ape.managers.config import CONFIG_FILE_NAME
 from rich import print as echo_rich_text
 from rich.tree import Tree
+
 from ape_jules.subcommands.projects import projects as project_cli
 
 

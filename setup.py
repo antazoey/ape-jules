@@ -8,10 +8,10 @@ extras_require = {
         "ape-infura",
     ],
     "lint": [
-        "black>=22.3.0,<23.0",  # auto-formatter and linter
-        "mypy>=0.950,<1.0",  # Static type analyzer
-        "flake8>=4.0.1,<5.0",  # Style linter
-        "isort>=5.10.1,<6.0",  # Import sorting linter
+        "black>=22.3.0",  # auto-formatter and linter
+        "mypy>=0.961",  # Static type analyzer
+        "flake8>=4.0.1",  # Style linter
+        "isort>=5.10.1",  # Import sorting linter
     ],
     "dev": [
         "commitizen>=2.19,<2.20",  # Manage commits and publishing releases
@@ -33,7 +33,7 @@ setup(
     name="ape-jules",
     use_scm_version=True,
     setup_requires=["setuptools_scm"],
-    description="""ape-jules: Jules' custom Ethereum tooling""",
+    description="""ape-jules: Jules' custom ape tooling""",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="ApeWorX Ltd.",
@@ -41,11 +41,11 @@ setup(
     url="https://github.com/unparalleled-js/ape-jules",
     include_package_data=True,
     install_requires=[
-        "eth-ape>=0.1.0b5",
-        "click>=8.1.3,<9",
-        "rich>=10.16.2,<11",
+        "eth-ape>=0.3.1",
+        "click",
+        "rich",
         "importlib-metadata ; python_version<'3.8'",
-    ],  # NOTE: Add 3rd party libraries here
+    ],
     entry_points={
         "ape_cli_subcommands": [
             "ape_jules=ape_jules._cli:cli",

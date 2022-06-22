@@ -1,11 +1,11 @@
-from pathlib import Path
 import shutil
+import subprocess
+from pathlib import Path
 
 import click
 from ape.cli import ape_cli_context
 from ape.logging import LogLevel
 from rich.console import Console
-import subprocess
 
 
 @click.group(short_help="Manage smart-contract projects.")
